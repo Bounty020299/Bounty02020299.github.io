@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iconify</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .logo-font {
+            font-family: 'Montserrat', sans-serif;
+        }
+        .card {
+            transition: background-color 0.3s;
+        }
+        .btn-primary {
+            transition-property: all;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 150ms;
+        }
+        .btn-primary:hover {
+            background-color: #718096;
+        }
+        .input-style, .select-style {
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+        .input-style:focus, .select-style:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px;
+        }
+        .loader {
+            border-top: 4px solid;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .select-wrapper {
+            position: relative;
+        }
+        .select-wrapper::after {
+            content: '▼';
+            font-size: 0.75rem;
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+        .color-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            max-width: 20rem;
+            margin: auto;
+        }
+        .color-box {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 0.5rem;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .color-box.selected {
+            transform: scale(1.1);
+        }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.75);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            padding: 2rem;
+            border-radius: 1rem;
+            max-width: 90%;
+            max-height: 90%;
+            overflow-y: auto;
+            position: relative;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .clear-prompt-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            color: #9ca3af;
+            transition: color 0.2s;
+        }
+        .clear-prompt-btn:hover {
+            color: #ef4444;
+        }
+
+        /* Dark Theme */
+        .dark-theme {
+            background-color: #1a202c;
+            color: #e2e8f0;
+        }
+        .dark-theme .card, .dark-theme .modal-content {
+            background-color: #2d3748;
+        }
+        .dark-theme .input-style, .dark-theme .select-style {
+            background-color: #4a5568;
+            color: #e2e8f0;
+            border-color: #4a5568;
+        }
+        .dark-theme .input-style:focus, .dark-theme .select-style:focus {
+            box-shadow: 0 0 0 2px rgba(99, 179, 237, 0.5);
+            border-color: #63b3ed;
+        }
+        .dark-theme .select-wrapper::after, .dark-theme .modal-close {
+            color: #e2e8f0;
+        }
+        .dark-theme .color-box.selected {
+            border-color: #63b3ed;
+        }
+        .dark-theme .btn-primary {
+            background-color: #4a5568;
+            color: #cbd5e0;
+        }
+        .dark-theme .btn-primary:hover {
+            background-color: #718096;
+        }
+        .dark-theme .loader {
+            border-top-color: #63b3ed;
+        }
+
+        /* Light Theme */
+        .light-theme {
+            background-color: #f7fafc;
+            color: #2d3748;
+        }
+        .light-theme .card, .light-theme .modal-content {
+            background-color: #ffffff;
+        }
+        .light-theme .input-style, .light-theme .select-style {
+            background-color: #edf2f7;
+            color: #2d3748;
+            border-color: #e2e8f0;
+        }
+        .light-theme .input-style:focus, .light-theme .select-style:focus {
+            box-shadow: 0 0 0 2px rgba(49, 130, 206, 0.5);
+            border-color: #4299e1;
+        }
+        .light-theme .select-wrapper::after, .light-theme .modal-close {
+            color: #2d3748;
+        }
+        .light-theme .color-box.selected {
+            border-color: #4299e1;
+        }
+        .light-theme .btn-primary {
+            background-color: #edf2f7;
+            color: #4a5568;
+        }
+        .light-theme .btn-primary:hover {
+            background-color: #e2e8f0;
+        }
+        .light-theme .loader {
+            border-top-color: #4299e1;
+        }
+
+        .drop-area {
+            border: 2px dashed;
+            border-color: #4a5568;
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        .drop-area.dark-theme {
+            border-color: #4a5568;
+        }
+        .drop-area.light-theme {
+            border-color: #e2e8f0;
+        }
+        .drop-area:hover, .drop-area.drag-over {
+            border-color: #63b3ed;
+        }
+        #previewImageContainer {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin: auto;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 1rem;
+            border-radius: 0.5rem;
+            border: 2px solid #4a5568;
+        }
+        #previewImage {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        #removePreviewBtn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-6 dark-theme">
+
+    <button id="themeToggleBtn" class="absolute top-4 right-4 p-2 rounded-full transition-colors duration-300">
+        <svg id="moon-icon" class="w-8 h-8 text-gray-400 dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+        </svg>
+        <svg id="sun-icon" class="w-8 h-8 text-yellow-500 hidden" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 2a1 1 0 011 1v1a1 1 0 11-2 0V5a1 1 0 011-1zm-4 7a3 3 0 100 6 3 3 0 000-6zm3-7a1 1 0 011 1v1a1 1 0 11-2 0V4a1 1 0 011-1zm4 11a1 1 0 110 2h-1a1 1 0 110-2h1z" clip-rule="evenodd"></path>
+        </svg>
+    </button>
+
+    <div class="card rounded-2xl shadow-2xl p-8 md:p-12 w-full max-w-5xl text-center">
+        <h1 class="logo-font text-5xl md:text-6xl font-bold mb-2">Iconify</h1>
+        <p id="main-subtitle" class="text-gray-400 mb-8 max-w-2xl mx-auto"></p>
+
+        <!-- Drag and Drop Area -->
+        <div id="drop-area" class="drop-area mb-6 light-theme">
+            <p id="drop-text" class="text-gray-500"></p>
+            <input type="file" id="fileElem" accept="image/*" class="hidden">
+        </div>
+
+        <div id="previewImageContainer" class="hidden">
+            <img id="previewImage" src="" alt="Image Preview">
+            <button id="removePreviewBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Main Generation Area -->
+        <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mb-6">
+            <div class="relative flex-grow">
+                <textarea id="promptInput" rows="4" placeholder="" class="w-full p-4 rounded-lg input-style focus:ring-2 resize-none"></textarea>
+                <button id="clearPromptBtn" class="clear-prompt-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="mb-6 relative">
+            <textarea id="negativePromptInput" rows="2" placeholder="" class="w-full p-4 rounded-lg input-style focus:ring-2 resize-none"></textarea>
+            <button id="clearNegativePromptBtn" class="clear-prompt-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Dropdowns for options with clear labels -->
+        <div class="flex flex-wrap justify-center items-center gap-6 mb-8">
+            <div class="flex flex-col items-start w-48">
+                <label id="category-label" for="categorySelect" class="text-sm font-semibold mb-1"></label>
+                <div class="select-wrapper w-full">
+                    <select id="categorySelect" class="block appearance-none w-full select-style py-3 px-4 rounded-lg leading-tight">
+                        <option value="vector"></option>
+                        <option value="icon"></option>
+                        <option value="logo"></option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="flex flex-col items-start w-48">
+                <label id="style-label" for="styleSelect" class="text-sm font-semibold mb-1"></label>
+                <div class="select-wrapper w-full">
+                    <select id="styleSelect" class="block appearance-none w-full select-style py-3 px-4 rounded-lg leading-tight">
+                        <!-- Options populated by JavaScript -->
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex flex-col items-start w-48">
+                <label id="ratio-label" for="ratioSelect" class="text-sm font-semibold mb-1"></label>
+                <div class="select-wrapper w-full">
+                    <select id="ratioSelect" class="block appearance-none w-full select-style py-3 px-4 rounded-lg leading-tight">
+                        <option value="1:1"></option>
+                        <option value="16:9"></option>
+                        <option value="9:16"></option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex flex-col items-start w-48">
+                <label id="background-label" for="backgroundSelect" class="text-sm font-semibold mb-1"></label>
+                <div class="select-wrapper w-full">
+                    <select id="backgroundSelect" class="block appearance-none w-full select-style py-3 px-4 rounded-lg leading-tight">
+                        <option value="transparent background"></option>
+                        <option value="white background"></option>
+                        <option value="black background"></option>
+                        <option value="full background"></option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex flex-col items-start w-48">
+                <label id="count-label" for="countSelect" class="text-sm font-semibold mb-1"></label>
+                <div class="select-wrapper w-full">
+                    <select id="countSelect" class="block appearance-none w-full select-style py-3 px-4 rounded-lg leading-tight">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="4">4</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Color Picker Section -->
+        <div class="mb-8">
+            <h3 id="color-title" class="text-lg font-semibold mb-2"></h3>
+            <div id="colorSelector" class="flex flex-wrap justify-center gap-2">
+                <!-- Color boxes will be generated here -->
+            </div>
+            <p id="selectedColors" class="mt-4 text-sm"></p>
+        </div>
+
+        <!-- Generate Button -->
+        <button id="generateBtn" class="bg-indigo-600 text-white font-semibold py-4 px-8 rounded-lg hover:bg-indigo-700 transition-colors duration-300 shadow-md transform active:scale-95 transition-transform">
+            Generate
+        </button>
+
+        <!-- Loading indicator -->
+        <div id="loadingIndicator" class="hidden flex flex-col items-center mt-6">
+            <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
+            <span id="loading-text" class="font-medium"></span>
+        </div>
+
+        <!-- Message box -->
+        <div id="messageBox" class="hidden mt-6 p-4 rounded-lg text-sm font-medium" role="alert"></div>
+
+        <!-- Bulk Actions -->
+        <div id="bulkActions" class="mt-8 hidden justify-center items-center space-x-4">
+            <div class="flex items-center space-x-2">
+                <label id="upscale-factor-label" for="upscaleFactorSelect" class="text-sm font-medium"></label>
+                <div class="select-wrapper w-24">
+                    <select id="upscaleFactorSelect" class="select-style py-2 px-3 rounded-lg leading-tight">
+                        <option value="2">2x</option>
+                        <option value="4" selected>4x</option>
+                        <option value="8">8x</option>
+                    </select>
+                </div>
+            </div>
+            <button id="upscaleAllBtn" class="btn-primary px-6 py-3 rounded-lg font-semibold"></button>
+            <button id="downloadAllBtn" class="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors duration-300"></button>
+        </div>
+
+        <!-- Image Container -->
+        <div id="imageContainer" class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Generated images will be placed here -->
+        </div>
+    </div>
+
+    <!-- Upscale Modal -->
+    <div id="upscaleModal" class="modal hidden">
+        <div class="modal-content text-center relative">
+            <span id="closeModalBtn" class="modal-close">&times;</span>
+            <h2 id="modal-title" class="text-2xl font-bold mb-4"></h2>
+            <div class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-8">
+                <!-- Original Image Section -->
+                <div class="flex-1 flex flex-col items-center">
+                    <img id="modalOriginalImage" src="" alt="Original Image" class="w-full h-auto rounded-lg mb-4 max-h-80 object-contain">
+                    <div class="flex space-x-2">
+                        <button id="resize2xBtn" class="btn-primary px-4 py-2 rounded-lg font-semibold"></button>
+                        <button id="resize4xBtn" class="btn-primary px-4 py-2 rounded-lg font-semibold"></button>
+                        <button id="resize8xBtn" class="btn-primary px-4 py-2 rounded-lg font-semibold"></button>
+                    </div>
+                    <span id="resizeInfo" class="text-xs mt-2"></span>
+                    <a id="downloadOriginalBtn" href="" download="original_image.jpg" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 mt-4"></a>
+                </div>
+            </div>
+            <div id="resizeResult" class="hidden flex flex-col items-center mt-6">
+                <img id="resizedImage" src="" alt="Resized Image" class="hidden w-full h-auto rounded-lg mb-4 max-h-80 object-contain">
+                <div class="flex space-x-2">
+                    <a id="downloadResizedBtn" href="" download="resized_image.jpg" class="hidden bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"></a>
+                </div>
+                <span id="resizeMessage" class="text-sm mt-2"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-12 text-center max-w-2xl mx-auto text-gray-500">
+        <p>Iconify adalah alat pembuat visual serbaguna bertenaga AI yang dirancang untuk desainer, pemasar, dan siapa pun yang membutuhkan aset visual yang unik dan berkualitas tinggi. Buat ikon, gambar vektor, dan logo dengan mudah, dan sesuaikan setiap detail dengan prompt dan opsi terperinci. Didukung oleh model AI generatif Google.</p>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script>
+        const translations = {
+            'en': {
+                'main-title': 'Vector & Icon Generator',
+                'main-subtitle': 'Create icons or vector images with specific styles, ratios, color palettes, and backgrounds.',
+                'drop-text': 'Drag and drop an image here or click to upload',
+                'prompt-placeholder': 'Example: camera icon, minimalist',
+                'negative-prompt-placeholder': 'Negative Prompt: e.g., text, blurry, distorted',
+                'category-label': 'Category',
+                'category-vector': 'Vector',
+                'category-icon': 'Icon',
+                'category-logo': 'Logo',
+                'style-label': 'Style',
+                'style-icon-line': 'Line Art',
+                'style-icon-bold': 'Bold / Solid',
+                'style-icon-outline-color': 'Outline with Color',
+                'style-icon-flat': 'Flat',
+                'style-icon-3d': '3D',
+                'style-icon-gradient': 'Gradient',
+                'style-icon-isometric': 'Isometric',
+                'style-vector-flat': 'Flat Illustration',
+                'style-vector-cartoon': 'Cartoon Style',
+                'style-vector-minimalist': 'Minimalist Design',
+                'style-vector-abstract': 'Abstract Art',
+                'style-logo-minimalist': 'Minimalist',
+                'style-logo-esports': 'Esports',
+                'style-logo-vintage': 'Vintage',
+                'style-logo-modern-geo': 'Modern & Geometric',
+                'ratio-label': 'Ratio',
+                'ratio-square': '1:1 (Square)',
+                'ratio-landscape': '16:9 (Landscape)',
+                'ratio-portrait': '9:16 (Portrait)',
+                'background-label': 'Background',
+                'background-transparent': 'Transparent',
+                'background-white': 'White',
+                'background-black': 'Black',
+                'background-full': 'Full',
+                'count-label': 'Image Count',
+                'color-title': 'Select up to 7 Colors:',
+                'selected-colors-text': 'Select up to 7 colors for your palette.',
+                'generate-btn': 'Generate',
+                'loading-text': 'Creating image, please wait...',
+                'upscale-factor-label': 'Upscale Factor:',
+                'upscale-all-btn': 'Upscale All',
+                'download-all-btn': 'Download All',
+                'options-btn': 'Options',
+                'modal-title': 'Image Options',
+                'download-original-btn': 'Download Original',
+                'resize-btn': 'Resize',
+                'upscale-message-info': 'Starting bulk upscale...',
+                'upscale-message-success': 'All images have been upscaled.',
+                'download-message-success': 'All images have started downloading.',
+                'error-prompt-empty': 'Please enter a description.',
+                'error-api': 'An error occurred while creating the image: '
+            },
+            'id': {
+                'main-title': 'Pembuat Vector & Ikon',
+                'main-subtitle': 'Buat ikon atau gambar vektor dengan gaya, rasio, palet warna, dan latar belakang yang spesifik.',
+                'drop-text': 'Seret dan lepas gambar di sini atau klik untuk mengunggah',
+                'prompt-placeholder': 'Contoh: ikon kamera, minimalis',
+                'negative-prompt-placeholder': 'Prompt Negatif: misal: tulisan, buram, distorsi',
+                'category-label': 'Kategori',
+                'category-vector': 'Vektor',
+                'category-icon': 'Ikon',
+                'category-logo': 'Logo',
+                'style-label': 'Gaya',
+                'style-icon-line': 'Line Art',
+                'style-icon-bold': 'Tebal / Solid',
+                'style-icon-outline-color': 'Garis Luar dengan Warna',
+                'style-icon-flat': 'Rata',
+                'style-icon-3d': '3D',
+                'style-icon-gradient': 'Gradien',
+                'style-icon-isometric': 'Isometrik',
+                'style-vector-flat': 'Ilustrasi Rata',
+                'style-vector-cartoon': 'Gaya Kartun',
+                'style-vector-minimalist': 'Desain Minimalis',
+                'style-vector-abstract': 'Seni Abstrak',
+                'style-logo-minimalis': 'Minimalis',
+                'style-logo-esports': 'Esports',
+                'style-logo-vintage': 'Vintage',
+                'style-logo-modern-geo': 'Modern & Geometris',
+                'ratio-label': 'Rasio',
+                'ratio-square': '1:1 (Persegi)',
+                'ratio-landscape': '16:9 (Lansekap)',
+                'ratio-portrait': '9:16 (Potret)',
+                'background-label': 'Latar Belakang',
+                'background-transparent': 'Transparan',
+                'background-white': 'Putih',
+                'background-black': 'Hitam',
+                'background-full': 'Penuh',
+                'count-label': 'Jumlah Gambar',
+                'color-title': 'Pilih hingga 7 Warna:',
+                'selected-colors-text': 'Pilih hingga 7 warna untuk palet Anda.',
+                'generate-btn': 'Generate',
+                'loading-text': 'Membuat gambar, mohon tunggu...',
+                'upscale-factor-label': 'Faktor Perbesar:',
+                'upscale-all-btn': 'Perbesar Semua',
+                'download-all-btn': 'Unduh Semua',
+                'options-btn': 'Opsi',
+                'modal-title': 'Opsi Gambar',
+                'download-original-btn': 'Unduh Asli',
+                'resize-btn': 'Ubah Ukuran',
+                'upscale-message-info': 'Memulai perbesaran massal...',
+                'upscale-message-success': 'Semua gambar telah diperbesar.',
+                'download-message-success': 'Semua gambar telah mulai diunduh.',
+                'error-prompt-empty': 'Harap masukkan deskripsi.',
+                'error-api': 'Terjadi kesalahan saat membuat gambar: '
+            }
+        };
+
+        const promptInput = document.getElementById('promptInput');
+        const negativePromptInput = document.getElementById('negativePromptInput');
+        const generateBtn = document.getElementById('generateBtn');
+        const imageContainer = document.getElementById('imageContainer');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const messageBox = document.getElementById('messageBox');
+        const categorySelect = document.getElementById('categorySelect');
+        const styleSelect = document.getElementById('styleSelect');
+        const ratioSelect = document.getElementById('ratioSelect');
+        const backgroundSelect = document.getElementById('backgroundSelect');
+        const countSelect = document.getElementById('countSelect');
+        const colorSelector = document.getElementById('colorSelector');
+        const selectedColorsText = document.getElementById('selectedColors');
+        const upscaleModal = document.getElementById('upscaleModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const modalOriginalImage = document.getElementById('modalOriginalImage');
+        const downloadOriginalBtn = document.getElementById('downloadOriginalBtn');
+        const resize2xBtn = document.getElementById('resize2xBtn');
+        const resize4xBtn = document.getElementById('resize4xBtn');
+        const resize8xBtn = document.getElementById('resize8xBtn');
+        const resizedImage = document.getElementById('resizedImage');
+        const downloadResizedBtn = document.getElementById('downloadResizedBtn');
+        const resizeMessage = document.getElementById('resizeMessage');
+        const resizeResult = document.getElementById('resizeResult');
+        const resizeInfo = document.getElementById('resizeInfo');
+        const bulkActions = document.getElementById('bulkActions');
+        const upscaleAllBtn = document.getElementById('upscaleAllBtn');
+        const downloadAllBtn = document.getElementById('downloadAllBtn');
+        const upscaleFactorSelect = document.getElementById('upscaleFactorSelect');
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+        const moonIcon = document.getElementById('moon-icon');
+        const sunIcon = document.getElementById('sun-icon');
+        const dropArea = document.getElementById('drop-area');
+        const fileElem = document.getElementById('fileElem');
+        const dropText = document.getElementById('drop-text');
+        const clearPromptBtn = document.getElementById('clearPromptBtn');
+        const clearNegativePromptBtn = document.getElementById('clearNegativePromptBtn');
+        const previewImageContainer = document.getElementById('previewImageContainer');
+        const previewImage = document.getElementById('previewImage');
+        const removePreviewBtn = document.getElementById('removePreviewBtn');
+
+        let originalImageBackground = '';
+        const generatedImageElements = [];
+
+        const styles = {
+            'icon': [
+                { value: 'line art icon', text: 'style-icon-line' },
+                { value: 'bold solid icon', text: 'style-icon-bold' },
+                { value: 'outline with color icon', text: 'style-icon-outline-color' },
+                { value: 'flat icon', text: 'style-icon-flat' },
+                { value: '3D icon', text: 'style-icon-3d' },
+                { value: 'gradient icon', text: 'style-icon-gradient' },
+                { value: 'isometric icon', text: 'style-icon-isometric' }
+            ],
+            'vector': [
+                { value: 'flat illustration', text: 'style-vector-flat' },
+                { value: 'cartoon style', text: 'style-vector-cartoon' },
+                { value: 'minimalist design', text: 'style-vector-minimalist' },
+                { value: 'abstract art', text: 'style-vector-abstract' }
+            ],
+            'logo': [
+                { value: 'minimalist logo design', text: 'style-logo-minimalis' },
+                { value: 'esports logo design', text: 'style-logo-esports' },
+                { value: 'vintage logo design', text: 'style-logo-vintage' },
+                { value: 'modern geometric logo design', text: 'style-logo-modern-geo' }
+            ]
+        };
+
+        const availableColors = ['#FF6347', '#FFD700', '#ADFF2F', '#00CED1', '#4169E1', '#8A2BE2', '#FF69B4', '#A52A2A', '#000000', '#FFFFFF'];
+        let selectedPalette = [];
+
+        async function translateText(text, targetLang) {
+            const payload = {
+                contents: [{
+                    parts: [{ text: `Translate the following text to ${targetLang}: ${text}` }]
+                }],
+                generationConfig: {
+                    responseModalities: ['TEXT']
+                }
+            };
+
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                return result.candidates?.[0]?.content?.parts?.[0]?.text || text;
+            } catch (error) {
+                console.error("Translation failed:", error);
+                return text;
+            }
+        }
+
+        function getLanguage() {
+            const userLang = navigator.language || navigator.userLanguage;
+            if (userLang.startsWith('id')) {
+                return 'id';
+            }
+            return 'en';
+        }
+
+        function setLanguage(lang) {
+            const t = translations[lang];
+            
+            // Text elements
+            document.getElementById('main-subtitle').textContent = t['main-subtitle'];
+            document.getElementById('drop-text').textContent = t['drop-text'];
+            document.getElementById('promptInput').placeholder = t['prompt-placeholder'];
+            document.getElementById('negativePromptInput').placeholder = t['negative-prompt-placeholder'];
+            document.getElementById('category-label').textContent = t['category-label'];
+            document.querySelector('#categorySelect option[value="vector"]').textContent = t['category-vector'];
+            document.querySelector('#categorySelect option[value="icon"]').textContent = t['category-icon'];
+            document.querySelector('#categorySelect option[value="logo"]').textContent = t['category-logo'];
+            document.getElementById('style-label').textContent = t['style-label'];
+            document.getElementById('ratio-label').textContent = t['ratio-label'];
+            document.querySelector('#ratioSelect option[value="1:1"]').textContent = t['ratio-square'];
+            document.querySelector('#ratioSelect option[value="16:9"]').textContent = t['ratio-landscape'];
+            document.querySelector('#ratioSelect option[value="9:16"]').textContent = t['ratio-portrait'];
+            document.getElementById('background-label').textContent = t['background-label'];
+            document.querySelector('#backgroundSelect option[value="transparent background"]').textContent = t['background-transparent'];
+            document.querySelector('#backgroundSelect option[value="white background"]').textContent = t['background-white'];
+            document.querySelector('#backgroundSelect option[value="black background"]').textContent = t['background-black'];
+            document.querySelector('#backgroundSelect option[value="full background"]').textContent = t['background-full'];
+            document.getElementById('count-label').textContent = t['count-label'];
+            document.getElementById('color-title').textContent = t['color-title'];
+            document.getElementById('selectedColors').textContent = t['selected-colors-text'];
+            document.getElementById('generate-btn').textContent = t['generate-btn'];
+            document.getElementById('loading-text').textContent = t['loading-text'];
+            document.getElementById('upscale-factor-label').textContent = t['upscale-factor-label'];
+            document.getElementById('upscaleAllBtn').textContent = t['upscale-all-btn'];
+            document.getElementById('downloadAllBtn').textContent = t['download-all-btn'];
+            document.getElementById('modal-title').textContent = t['modal-title'];
+            document.getElementById('downloadOriginalBtn').textContent = t['download-original-btn'];
+            document.getElementById('resize2xBtn').textContent = t['resize-btn'] + ' 2x';
+            document.getElementById('resize4xBtn').textContent = t['resize-btn'] + ' 4x';
+            document.getElementById('resize8xBtn').textContent = t['resize-btn'] + ' 8x';
+            document.getElementById('downloadResizedBtn').textContent = t['download-original-btn'];
+
+            // Update style options
+            updateStyles(lang);
+        }
+
+        function updateStyles(lang = getLanguage()) {
+            const t = translations[lang];
+            const selectedCategory = categorySelect.value;
+            const options = styles[selectedCategory];
+            styleSelect.innerHTML = '';
+            options.forEach(option => {
+                const opt = document.createElement('option');
+                opt.value = option.value;
+                opt.textContent = t[option.text];
+                styleSelect.appendChild(opt);
+            });
+            if (selectedCategory === 'icon') {
+                promptInput.placeholder = t['prompt-placeholder'];
+            } else if (selectedCategory === 'vector') {
+                promptInput.placeholder = t['prompt-placeholder'];
+            } else if (selectedCategory === 'logo') {
+                promptInput.placeholder = t['prompt-placeholder'].replace('ikon kamera, minimalis', 'Logo singa, minimalis');
+            }
+        }
+
+        function renderColorPicker() {
+            colorSelector.innerHTML = '';
+            availableColors.forEach(color => {
+                const box = document.createElement('div');
+                box.className = 'color-box rounded-lg cursor-pointer transition-all duration-200';
+                box.style.backgroundColor = color;
+                box.dataset.color = color;
+                if (selectedPalette.includes(color)) {
+                    box.classList.add('selected');
+                }
+                box.addEventListener('click', () => {
+                    if (selectedPalette.includes(color)) {
+                        selectedPalette = selectedPalette.filter(c => c !== color);
+                        box.classList.remove('selected');
+                    } else if (selectedPalette.length < 7) {
+                        selectedPalette.push(color);
+                        box.classList.add('selected');
+                    }
+                    updateSelectedColorsText();
+                });
+                colorSelector.appendChild(box);
+            });
+        }
+
+        function updateSelectedColorsText() {
+            const lang = getLanguage();
+            const t = translations[lang];
+            if (selectedPalette.length > 0) {
+                selectedColorsText.textContent = `${t['selected-colors-text'].replace('Pilih hingga 7 warna untuk palet Anda.', '')} ${selectedPalette.join(', ')}`;
+            } else {
+                selectedColorsText.textContent = t['selected-colors-text'];
+            }
+        }
+
+        categorySelect.addEventListener('change', () => updateStyles());
+
+        window.onload = () => {
+            setLanguage(getLanguage());
+            renderColorPicker();
+            updateSelectedColorsText();
+            // Load theme preference
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            document.body.classList.remove('dark-theme', 'light-theme');
+            document.body.classList.add(savedTheme + '-theme');
+            updateThemeToggle(savedTheme);
+        };
+
+        function showMessage(message, type = 'info') {
+            messageBox.textContent = message;
+            messageBox.className = 'mt-6 p-4 rounded-lg text-sm font-medium';
+            if (type === 'error') {
+                messageBox.classList.add('bg-red-100', 'text-red-700');
+            } else if (type === 'success') {
+                messageBox.classList.add('bg-green-100', 'text-green-700');
+            } else {
+                messageBox.classList.add('bg-blue-100', 'text-blue-700');
+            }
+            messageBox.classList.remove('hidden');
+        }
+
+        function hideMessage() {
+            messageBox.classList.add('hidden');
+        }
+
+        async function generateImages(initialPrompt = null, initialRatio = null, initialBackground = null, initialPalette = null, initialStyle = null) {
+            const prompt = initialPrompt || promptInput.value.trim();
+            const negativePrompt = negativePromptInput.value.trim();
+            const lang = getLanguage();
+            const t = translations[lang];
+
+            if (!prompt) {
+                showMessage(t['error-prompt-empty'], 'error');
+                return;
+            }
+
+            hideMessage();
+            loadingIndicator.classList.remove('hidden');
+            imageContainer.innerHTML = '';
+            generatedImageElements.length = 0;
+            generateBtn.disabled = true;
+            generateBtn.classList.add('animate-pulse');
+            bulkActions.classList.add('hidden');
+
+            const category = categorySelect.value;
+            const style = initialStyle || styleSelect.value;
+            const ratio = initialRatio || ratioSelect.value;
+            const background = initialBackground || backgroundSelect.value;
+            const count = parseInt(countSelect.value, 10);
+            const palette = initialPalette || selectedPalette;
+            const colorPaletteString = palette.length > 0 ? `using a color palette of ${palette.join(', ')}` : '';
+            
+            // Translate prompts
+            const translatedPrompt = await translateText(prompt, 'en');
+            const translatedNegativePrompt = negativePrompt ? await translateText(negativePrompt, 'en') : '';
+            
+            const ratios = {
+                '1:1': { width: 1024, height: 1024 },
+                '16:9': { width: 1024, height: 576 },
+                '9:16': { width: 576, height: 1024 }
+            };
+            const targetWidth = ratios[ratio].width;
+            const targetHeight = ratios[ratio].height;
+            
+            for (let i = 0; i < count; i++) {
+                const uniqueSeed = Math.random();
+                
+                let fullPrompt = `Generate a high-quality ${category} image. The subject is: "${translatedPrompt}". Use a "${style}" style. ${colorPaletteString}. Background: ${background}. Unique seed: ${uniqueSeed}.`;
+                if (translatedNegativePrompt) {
+                    fullPrompt += ` Do not include: ${translatedNegativePrompt}.`;
+                }
+                
+                const payload = {
+                    contents: [{
+                        parts: [{ text: fullPrompt }]
+                    }],
+                    generationConfig: {
+                        responseModalities: ['TEXT', 'IMAGE']
+                    },
+                };
+                
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${apiKey}`;
+
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error.message || `API request failed with status ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    const base64Data = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+
+                    if (!base64Data) {
+                        throw new Error('Could not generate an image from this description.');
+                    }
+
+                    const imageUrl = `data:image/jpeg;base64,${base64Data}`;
+                    
+                    const img = new Image();
+                    img.src = imageUrl;
+                    img.alt = fullPrompt;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        canvas.width = targetWidth;
+                        canvas.height = targetHeight;
+                        
+                        const imgRatio = img.width / img.height;
+                        const canvasRatio = targetWidth / targetHeight;
+                        
+                        let drawWidth, drawHeight, x = 0, y = 0;
+                        if (imgRatio > canvasRatio) {
+                            drawHeight = targetHeight;
+                            drawWidth = drawHeight * imgRatio;
+                            x = (targetWidth - drawWidth) / 2;
+                        } else {
+                            drawWidth = targetWidth;
+                            drawHeight = drawWidth / imgRatio;
+                            y = (targetHeight - drawHeight) / 2;
+                        }
+                        
+                        ctx.fillStyle = backgroundSelect.value.includes('transparent') ? 'rgba(255, 255, 255, 0)' : '#FFFFFF';
+                        ctx.fillRect(0, 0, targetWidth, targetHeight);
+                        ctx.drawImage(img, x, y, drawWidth, drawHeight);
+                        
+                        const adjustedImageUrl = canvas.toDataURL('image/jpeg');
+                        
+                        const imgElement = document.createElement('img');
+                        imgElement.src = adjustedImageUrl;
+                        imgElement.classList.add('w-full', 'h-auto', 'object-cover', 'transition-transform', 'duration-300', 'transform', 'group-hover:scale-105');
+                        
+                        const optionsBtn = document.createElement('button');
+                        optionsBtn.classList.add('options-btn', 'bg-indigo-600', 'text-white', 'px-4', 'py-2', 'rounded-lg', 'font-semibold', 'hover:bg-indigo-700');
+                        optionsBtn.textContent = t['options-btn'];
+                        optionsBtn.dataset.imageSrc = adjustedImageUrl;
+                        optionsBtn.dataset.backgroundOption = background;
+
+                        const overlay = document.createElement('div');
+                        overlay.classList.add('absolute', 'bottom-0', 'inset-x-0', 'bg-black', 'bg-opacity-70', 'flex', 'items-center', 'justify-center', 'p-2', 'opacity-0', 'group-hover:opacity-100', 'transition-opacity', 'duration-300');
+                        overlay.appendChild(optionsBtn);
+
+                        const imageWrapper = document.createElement('div');
+                        imageWrapper.classList.add('relative', 'group', 'overflow-hidden', 'rounded-lg', 'shadow-md');
+                        imageWrapper.appendChild(imgElement);
+                        imageWrapper.appendChild(overlay);
+                        
+                        imageContainer.appendChild(imageWrapper);
+                        generatedImageElements.push(imageWrapper);
+                    };
+
+                } catch (error) {
+                    console.error('Error generating image:', error);
+                    showMessage(t['error-api'] + (error.message || 'Unknown error'), 'error');
+                }
+            }
+            
+            loadingIndicator.classList.add('hidden');
+            generateBtn.disabled = false;
+            generateBtn.classList.remove('animate-pulse');
+            showMessage(t['upscale-message-success'], 'success');
+            if (generatedImageElements.length > 0) {
+                bulkActions.classList.remove('hidden');
+                bulkActions.classList.add('flex');
+            }
+        }
+
+        // Event listener for the new "Opsi" buttons
+        imageContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('options-btn')) {
+                const btn = e.target;
+                const originalImageUrl = btn.dataset.imageSrc;
+                originalImageBackground = btn.dataset.backgroundOption;
+                
+                modalOriginalImage.src = originalImageUrl;
+                downloadOriginalBtn.href = originalImageUrl;
+                downloadOriginalBtn.download = `original_image.jpg`;
+
+                resizeInfo.textContent = '';
+                resizedImage.classList.add('hidden');
+                downloadResizedBtn.classList.add('hidden');
+                resizeResult.classList.add('hidden');
+                resizeMessage.textContent = '';
+                
+                upscaleModal.classList.remove('hidden');
+            }
+        });
+
+        generateBtn.addEventListener('click', () => generateImages());
+        promptInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                generateImages();
+            }
+        });
+
+        closeModalBtn.addEventListener('click', () => {
+            upscaleModal.classList.add('hidden');
+        });
+        
+        async function resizeImage(factor) {
+            const img = new Image();
+            img.src = modalOriginalImage.src;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const newWidth = img.width * factor;
+                const newHeight = img.height * factor;
+                
+                canvas.width = newWidth;
+                canvas.height = newHeight;
+                
+                if (originalImageBackground.includes('transparent')) {
+                    const imgData = ctx.getImageData(0, 0, img.width, img.height);
+                    const data = imgData.data;
+                    const white = {r: 255, g: 255, b: 255};
+                    const black = {r: 0, g: 0, b: 0};
+                    for(let i = 0; i < data.length; i += 4) {
+                        const r = data[i], g = data[i+1], b = data[i+2];
+                        if (Math.abs(r-white.r) < 10 && Math.abs(g-white.g) < 10 && Math.abs(b-white.b) < 10) {
+                            data[i+3] = 0; // Transparan jika putih
+                        } else if (Math.abs(r-black.r) < 10 && Math.abs(g-black.g) < 10 && Math.abs(b-black.b) < 10) {
+                            data[i+3] = 0; // Transparan jika hitam
+                        }
+                    }
+                    ctx.putImageData(imgData, 0, 0);
+                    ctx.drawImage(img, 0, 0, newWidth, newHeight);
+                } else {
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(0, 0, newWidth, newHeight);
+                    ctx.drawImage(img, 0, 0, newWidth, newHeight);
+                }
+                
+                const resizedImageUrl = canvas.toDataURL('image/jpeg');
+                resizedImage.src = resizedImageUrl;
+                resizedImage.classList.remove('hidden');
+                downloadResizedBtn.href = resizedImageUrl;
+                downloadResizedBtn.download = `resized_${factor}x.jpg`;
+                downloadResizedBtn.classList.remove('hidden');
+                
+                resizeInfo.textContent = `Resolusi: ${newWidth}x${newHeight} piksel`;
+            };
+            resizeResult.classList.remove('hidden');
+        }
+
+        resize2xBtn.addEventListener('click', () => resizeImage(2));
+        resize4xBtn.addEventListener('click', () => resizeImage(4));
+        resize8xBtn.addEventListener('click', () => resizeImage(8));
+
+        // Bulk Actions
+        upscaleAllBtn.addEventListener('click', async () => {
+            if (generatedImageElements.length === 0) return;
+            const lang = getLanguage();
+            const t = translations[lang];
+            
+            const upscaleFactor = parseInt(upscaleFactorSelect.value, 10);
+            
+            showMessage(t['upscale-message-info'], 'info');
+            upscaleAllBtn.disabled = true;
+
+            for (const wrapper of generatedImageElements) {
+                const img = wrapper.querySelector('img');
+                const originalUrl = img.src;
+
+                const newImg = new Image();
+                newImg.src = originalUrl;
+                await new Promise(resolve => newImg.onload = resolve);
+
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const newWidth = newImg.width * upscaleFactor;
+                const newHeight = newImg.height * upscaleFactor;
+                
+                canvas.width = newWidth;
+                canvas.height = newHeight;
+                
+                if (backgroundSelect.value.includes('transparent')) {
+                    const imgData = ctx.getImageData(0, 0, newImg.width, newImg.height);
+                    const data = imgData.data;
+                    const white = {r: 255, g: 255, b: 255};
+                    const black = {r: 0, g: 0, b: 0};
+                    for(let i = 0; i < data.length; i += 4) {
+                        const r = data[i], g = data[i+1], b = data[i+2];
+                        if (Math.abs(r-white.r) < 10 && Math.abs(g-white.g) < 10 && Math.abs(b-white.b) < 10) {
+                            data[i+3] = 0; // Transparan jika putih
+                        } else if (Math.abs(r-black.r) < 10 && Math.abs(g-black.g) < 10 && Math.abs(b-black.b) < 10) {
+                            data[i+3] = 0; // Transparan jika hitam
+                        }
+                    }
+                    ctx.putImageData(imgData, 0, 0);
+                    ctx.drawImage(newImg, 0, 0, newWidth, newHeight);
+                } else {
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(0, 0, newWidth, newHeight);
+                    ctx.drawImage(newImg, 0, 0, newWidth, newHeight);
+                }
+                
+                const resizedImageUrl = canvas.toDataURL('image/jpeg');
+                img.src = resizedImageUrl;
+            }
+            
+            upscaleAllBtn.disabled = false;
+            showMessage(t['upscale-message-success'], 'success');
+        });
+
+        downloadAllBtn.addEventListener('click', async () => {
+            if (generatedImageElements.length === 0) return;
+            const lang = getLanguage();
+            const t = translations[lang];
+
+            for (let i = 0; i < generatedImageElements.length; i++) {
+                const img = generatedImageElements[i].querySelector('img');
+                const a = document.createElement('a');
+                a.href = img.src;
+                a.download = `image_${i + 1}.jpg`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
+            showMessage(t['download-message-success'], 'success');
+        });
+
+        // Theme Toggle
+        themeToggleBtn.addEventListener('click', () => {
+            const currentTheme = document.body.classList.contains('dark-theme') ? 'dark' : 'light';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.body.classList.remove(currentTheme + '-theme');
+            document.body.classList.add(newTheme + '-theme');
+            localStorage.setItem('theme', newTheme);
+            updateThemeToggle(newTheme);
+        });
+
+        function updateThemeToggle(theme) {
+            if (theme === 'dark') {
+                moonIcon.classList.remove('hidden');
+                sunIcon.classList.add('hidden');
+            } else {
+                moonIcon.classList.add('hidden');
+                sunIcon.classList.remove('hidden');
+            }
+        }
+        
+        // Drag and Drop
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, () => dropArea.classList.add('drag-over'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, () => dropArea.classList.remove('drag-over'), false);
+        });
+
+        dropArea.addEventListener('drop', handleDrop, false);
+        dropArea.addEventListener('click', () => fileElem.click(), false);
+        fileElem.addEventListener('change', (e) => handleFiles(e.target.files), false);
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
+
+        async function handleFiles(files) {
+            if (files.length === 0) return;
+            const file = files[0];
+            
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onloadstart = () => {
+                loadingIndicator.classList.remove('hidden');
+                dropArea.classList.add('hidden');
+                previewImageContainer.classList.add('hidden');
+            };
+            reader.onloadend = async () => {
+                const originalImage = reader.result;
+                
+                previewImage.src = originalImage;
+                previewImageContainer.classList.remove('hidden');
+                
+                const base64Image = originalImage.split(',')[1];
+                await describeImage(base64Image);
+                
+                loadingIndicator.classList.add('hidden');
+            };
+        }
+
+        async function describeImage(base64Image) {
+            generateBtn.disabled = true;
+            generateBtn.classList.add('animate-pulse');
+            
+            const payload = {
+                contents: [{
+                    parts: [
+                        { text: "Describe this image, focusing on style, color palette, and key objects. Output a short, concise description in English, ready to be used as a prompt for an AI image generator." },
+                        { inlineData: { mimeType: "image/jpeg", data: base64Image } }
+                    ]
+                }],
+                generationConfig: {
+                    responseModalities: ['TEXT']
+                }
+            };
+
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                const description = result?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+                
+                if (description) {
+                    promptInput.value = description;
+                    showMessage("Prompt has been generated from your image. You can now press 'Generate' to create similar images.", 'success');
+                } else {
+                    showMessage("Could not generate a prompt from the image. Please enter a description manually.", 'error');
+                }
+            } catch (error) {
+                console.error("Error describing image:", error);
+                showMessage("An error occurred while analyzing the image.", 'error');
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.classList.remove('animate-pulse');
+            }
+        }
+
+        clearPromptBtn.addEventListener('click', () => {
+            promptInput.value = '';
+            promptInput.focus();
+        });
+
+        clearNegativePromptBtn.addEventListener('click', () => {
+            negativePromptInput.value = '';
+            negativePromptInput.focus();
+        });
+
+        removePreviewBtn.addEventListener('click', () => {
+            previewImageContainer.classList.add('hidden');
+            dropArea.classList.remove('hidden');
+            promptInput.value = '';
+            negativePromptInput.value = '';
+        });
+    </script>
+</body>
+</html>
